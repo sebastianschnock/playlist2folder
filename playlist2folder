@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Reads a m3u playlist and copies all tracks to a folder.
+
+playlist=$1
+playlistName=$(basename "$playlist" .m3u)
+outputFolder=$playlistName
+
+echo "Copying files to '$outputFolder'"
+
+# check parameter validity
+if [[ -z $1 ]]; then
+	echo "no playlist given"
+	exit 1
+fi
+
+# create output folder
+mkdir -p $outputFolder
+
+# parse m3u playlist and copy files to folder
+trackNumber=1
+while read -r line; do
+	# skip commented lines
+	[[ "$line" =~ ^#.*$ ]] && continue
+	# add padding to track number (http://stackoverflow.com/a/1898843)
+	if [[ ${#trackNumber} < 2 ]]; then
+		trackNumberPadded="00$trackNumber"
+		trackNumberPadded="${trackNumberPadded: -2}"
+	else
+		trackNumberPadded=$trackNumber
+	fi
+	filename="$playlistName - $trackNumberPadded - $(basename "$line")"
+	cp "$line" "$outputFolder/$filename"
+	((trackNumber++))
+done < "${playlist}"
