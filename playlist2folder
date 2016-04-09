@@ -30,6 +30,13 @@ while read -r line; do
 		trackNumberPadded=$trackNumber
 	fi
 	filename="$playlistName - $trackNumberPadded - $(basename "$line")"
+	echo "copying $filename"
 	cp "$line" "$outputFolder/$filename"
 	((trackNumber++))
 done < "${playlist}"
+
+# merge files with mp3wrap when its installed
+# http://mp3wrap.sourceforge.net/
+if hash mp3wrap 2>/dev/null; then
+	mp3wrap ${outputFolder}/${playlistName}.mp3 ${outputFolder}/*.mp3
+fi
